@@ -1,0 +1,20 @@
+#
+# This file is managed by puppet class 'uwsgi'
+#
+# uWSGI Emperor process Systemd script
+#
+[Unit]
+Description=uWSGI Emperor
+After=syslog.target
+
+[Service]
+ExecStart=/usr/bin/env uwsgi --ini <%= @config_file %>
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+ExecStartPre=/bin/mkdir -p `dirname <%= @socket %>`
+
+[Install]
+WantedBy=multi-user.target

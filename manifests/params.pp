@@ -12,7 +12,6 @@ class uwsgi::params {
     $service_name        = 'uwsgi'
     $service_ensure      = true
     $service_enable      = true
-    $service_provider    = 'upstart'
     $manage_service_file = true
     $config_file         = '/etc/uwsgi.ini'
     $tyrant              = true
@@ -25,15 +24,32 @@ class uwsgi::params {
     case $::osfamily {
         redhat: {
             $app_directory = '/etc/uwsgi.d'
-            $pidfile       = '/var/run/uwsgi/uwsgi.pid'
             $python_dev    = 'python-devel'
-            $socket        = '/var/run/uwsgi/uwsgi.socket'
+            if versioncmp($::operatingsystemrelease, 7) > 0 {
+              $service_provider  = 'systemd'
+              $service_file      = '/etc/systemd/system/uwsgi.service'
+              $service_file_mode = '0664'
+              $service_template  = 'uwsgi/uwsgi_systemd.erb'
+              $socket            = '/run/uwsgi/uwsgi.socket'
+              $pidfile           = '/run/uwsgi/uwsgi.pid'
+            } else {
+              $service_provider  = 'redhat'
+              $service_file      = '/etc/init.d/uwsgi'
+              $service_file_mode = '0755'
+              $service_template  = 'uwsgi/uwsgi_redhat_lsb.erb'
+              $socket            = '/var/run/uwsgi/uwsgi.socket'
+              $pidfile           = '/var/run/uwsgi/uwsgi.pid'
+            }
         }
         default: {
-            $app_directory = '/etc/uwsgi/apps-enabled'
-            $pidfile       = '/run/uwsgi/uwsgi.pid'
-            $python_dev    = 'python-dev'
-            $socket        = '/run/uwsgi/uwsgi.socket'
+            $app_directory     = '/etc/uwsgi/apps-enabled'
+            $pidfile           = '/run/uwsgi/uwsgi.pid'
+            $python_dev        = 'python-dev'
+            $socket            = '/run/uwsgi/uwsgi.socket'
+            $service_provider  = 'upstart'
+            $service_file      = '/etc/init/uwsgi.conf'
+            $service_file_mode = '0755'
+            $service_template  = 'uwsgi/uwsgi_upstart.erb'
         }
     }
 }

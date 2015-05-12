@@ -93,9 +93,9 @@ class uwsgi (
     $package_ensure      = $uwsgi::params::package_ensure,
     $package_provider    = $uwsgi::params::package_provider,
     $service_name        = $uwsgi::params::service_name,
-    $service_file        = undef,
-    $service_file_mode   = undef,
-    $service_template    = undef,
+    $service_file        = $uwsgi::params::service_file,
+    $service_file_mode   = $uwsgi::params::service_file_mode,
+    $service_template    = $uwsgi::params::service_template,
     $service_ensure      = $uwsgi::params::service_ensure,
     $service_enable      = $uwsgi::params::service_enable,
     $service_provider    = $uwsgi::params::service_provider,
@@ -115,6 +115,9 @@ class uwsgi (
 ) inherits uwsgi::params {
 
     validate_re($log_rotate, '^yes$|^no$|^purge$')
+    validate_absolute_path($service_file)
+    validate_re($service_file_mode, '^0[4567][4567][4567]$')
+    validate_string($service_template)
 
     if ! defined(Package[$python_dev]) and $install_python_dev {
         package { $python_dev:
@@ -128,8 +131,8 @@ class uwsgi (
             ensure => present,
             before => Package[$package_name]
         }
-    }
-
+    } 
+    
     package { $package_name:
         ensure   => $package_ensure,
         provider => $package_provider
@@ -152,46 +155,16 @@ class uwsgi (
     }
 
     if $manage_service_file == true {
-      if $service_file == undef {
-          $service_file_real = $service_provider ? {
-              redhat  => '/etc/init.d/uwsgi',
-              upstart => '/etc/init/uwsgi.conf',
-              default => '/etc/init/uwsgi.conf',
-          }
-      } else {
-          $service_file_real = $service_file
+      file { $service_file:
+          ensure  => $file_ensure,
+          owner   => 'root',
+          group   => 'root',
+          mode    => $service_file_mode,
+          replace => $manage_service_file,
+          content => template($service_template),
+          require => Package[$package_name]
       }
-
-      if $service_file_mode == undef {
-          $service_file_mode_real = $service_provider ? {
-              redhat  => '0555',
-              upstart => '0644',
-              default => '0644',
-          }
-      } else {
-          $service_file_mode_real = $service_file_mode
-      }
-
-      if $service_template == undef {
-          $service_template_real = $service_provider ? {
-              redhat  => 'uwsgi/uwsgi_service-redhat.erb',
-              upstart => 'uwsgi/uwsgi_upstart.conf.erb',
-              default => 'uwsgi/uwsgi_upstart.conf.erb',
-          }
-      } else {
-          $service_template_real = $service_template
-      }
-
-      file { $service_file_real:
-          ensure   => $file_ensure,
-          owner    => 'root',
-          group    => 'root',
-          mode     => $service_file_mode_real,
-          replace  => $manage_service_file,
-          content  => template($service_template_real),
-          require  => Package[$package_name]
-      }
-      $required_files = [ $config_file, $service_file_real ]
+      $required_files = [ $config_file, $service_file ]
     } else {
       $required_files = $config_file
     }
@@ -218,7 +191,7 @@ class uwsgi (
     }
 
     case $log_rotate {
-        'yes': {
+        'present', 'yes': {
             file { '/etc/logrotate.d/uwsgi':
                 ensure  => 'file',
                 owner   => 'root',
@@ -232,6 +205,7 @@ class uwsgi (
                 ensure  => 'absent',
             }
         }
+        default: {}
     }
 
     # finally, configure any applications necessary
