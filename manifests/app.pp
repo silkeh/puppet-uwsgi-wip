@@ -30,12 +30,12 @@
 # - Josh Smeaton <josh.smeaton@gmail.com>
 #
 define uwsgi::app (
+    $uid,
+    $gid,
     $ensure                = 'present',
     $template              = 'uwsgi/uwsgi_app.ini.erb',
     $application_options   = undef,
     $environment_variables = undef,
-    $uid,
-    $gid
 ) {
 
     file { "${::uwsgi::app_directory}/${title}.ini":
@@ -44,6 +44,7 @@ define uwsgi::app (
         group   => $gid,
         mode    => '0644',
         content => template($template),
-        require => Package[$::uwsgi::package_name]
+        require => Package[$::uwsgi::package_name],
+        notify  => Service[$::uwsgi::service_name],
     }
 }
