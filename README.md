@@ -8,6 +8,10 @@ A puppet module for installing and managing uWSGI (in emperor mode)
 **WARNING**: version 2.0 and newer of this module _requires_ Puppet 4.7 and newer.
 See version 1.3.2 for compatibility with Puppet 3.
 
+This module has its roots in the work of @rvdh and @jarshwah:
+* https://github.com/rvdh/puppet-uwsgi - [(Forge Module)](https://forge.puppet.com/vandenhof/uwsgi)
+* https://github.com/jarshwah/puppet-uwsgi - [(Forge Module)](https://forge.puppet.com/engage/uwsgi)
+
 ## Description
 
 This module installs and configures [uWSGI](http://uwsgi-docs.readthedocs.org)
@@ -180,7 +184,7 @@ depending on the service provider (RedHat init.d / UpStart / SystemD).
 #### Parameters
 
 * `app`
-  A hash of `uwsgi::app` resources to create for you. See above.  
+  A hash of `uwsgi::app` resources to create for you. See above.
   Default: `{}`
   Merge behaviour: `deep`
 * `plugins`
