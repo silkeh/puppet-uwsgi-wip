@@ -1,12 +1,12 @@
 {
-    "name": "vandenhof-uwsgi",
+    "name": "poikilotherm-uwsgi",
     "version": "1.3.2",
     "author": "Rick van den Hof <rick@vandenhof.eu>",
     "summary": "Install and configure uwsgi in Emperor mode",
     "license": "MIT",
-    "source": "https://github.com/rvdh/puppet-uwsgi",
-    "project_page": "https://github.com/rvdh/puppet-uwsgi",
-    "issues_url": "https://github.com/rvdh/puppet-uwsgi/issues",
+    "source": "https://github.com/poikilotherm/puppet-uwsgi",
+    "project_page": "https://github.com/poikilotherm/puppet-uwsgi",
+    "issues_url": "https://github.com/poikilotherm/puppet-uwsgi/issues",
     "dependencies": [
 	{
 	    "name": "puppetlabs-stdlib",
