@@ -34,7 +34,7 @@ define uwsgi::app (
   Variant[Integer[0],String[1]] $gid,
   Optional[Enum['present','absent']] $ensure = 'present',
   Optional[String[1]] $template = 'uwsgi/uwsgi_app.ini.erb',
-  Optional[Hash[String[1],Scalar,Array]] $application_options = {},
+  Optional[Hash[String[1],Variant[Scalar,Array]]] $application_options = {},
   Optional[Hash[String[1],Scalar]] $environment_variables = {},
   Optional[Stdlib::Absolutepath] $app_dir = lookup('uwsgi::config::app_directory')
 ) {
